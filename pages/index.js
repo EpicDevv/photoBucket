@@ -113,7 +113,7 @@ export default function Home() {
   return (
     <div>
       <div className="bg-black min-h-screen bg-opacity-90">
-        <div className="bg-black border-b rounded-b-lg border-gray-600 flex flex-col w-full">
+        <div className="bg-black border-b rounded-b-lg border-gray-700 flex flex-col w-full">
           <h1 className="text-white text-3xl mb-3 font-thin text-center mt-2">
             Upload Images{" "}
           </h1>
@@ -121,7 +121,7 @@ export default function Home() {
             <label
               className={`text-white flex items-center ${
                 uploading ? "bg-green-400 animate-pulse text-black" : ""
-              } border ml-5 cursor-pointer  hover:bg-gray-800 border-white text-center px-4 text-[20px] justify-center rounded-lg py-1`}
+              } border ml-5 cursor-pointer font-thin  hover:bg-gray-800 border-gray-700 text-center px-4 text-[20px] justify-center rounded-lg py-1`}
               htmlFor="single"
             >
               {uploading ? "Uploading ..." : "Browse" } {!uploading && (<AiFillFolderOpen className="ml-2 text-green-400" />)}
@@ -156,13 +156,13 @@ export default function Home() {
                   setUploaded([]);
                   setNames([]);
                 }}
-                className="text-white mr-2 text-[15px] border rounded-lg px-4 py-1 hover:bg-gray-800"
+                className="text-white mr-2 text-[15px] border border-gray-700 rounded-lg px-4 py-1 hover:bg-gray-800"
               >
                 Cancel
               </button>
               <button
                 onClick={upload}
-                className="text-white text-[15px] border rounded-lg px-4 py-1 hover:bg-gray-800"
+                className="text-white text-[15px] border border-gray-700 rounded-lg px-4 py-1 hover:bg-green-400 hover:text-black"
               >
                 Upload
               </button>
