@@ -4,6 +4,7 @@ import styles from "../styles/Home.module.css";
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { AiFillFolderOpen } from "@react-icons/all-files/ai/AiFillFolderOpen";
+import Img from "../components/img";
 
 export default function Home() {
   const [uploading, setUploading] = useState(false);
@@ -17,6 +18,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [loadingg, setLoadingg] = useState(false);
   const [loader, setLoader] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [show, setShow] = useState(false);
 
   const getdetails = async () => {
     let urldata = [];
@@ -44,7 +47,12 @@ export default function Home() {
 
       const url = URL.createObjectURL(data);
 
-      urldata.push(url);
+      let xx = {
+        name: namdata[0][i].name,
+        url: url,
+      };
+
+      urldata.push(xx);
 
       setUrls(urldata);
     }
@@ -119,8 +127,21 @@ export default function Home() {
 
         const url = URL.createObjectURL(data);
 
-        urldata.push(url);
+        let xx = {
+          name: namdata[0][i].name,
+          url: url,
+        };
+
+        urldata.push(xx);
       }
+      // let xx = {
+      //   name: namdata[0][i].name,
+      //   url: url,
+      // };
+
+      // urldata.push(xx);
+
+      // setUrls(urldata);
 
       // urls.push.apply(urls, urldata);
       newimg.unshift.apply(newimg, urldata);
@@ -141,8 +162,52 @@ export default function Home() {
     }
   };
 
+  const imgtodel = async (url) => {
+    if (selected.includes(url.name) === false) {
+      selected.push(url.name);
+    } else {
+      if (selected.includes(url.name) === true) {
+        selected.splice(selected.indexOf(url.name), 1);
+      }
+    }
+
+    if (selected.length > 0) {
+      setShow(true);
+    } else {
+      setShow(false);
+    }
+  };
+
   return (
     <div>
+      {show === true && (
+        <div
+          onClick={async () => {
+            console.log(urls)
+            console.log(selected)
+            const picstodelete = new Set(selected);
+            const picstodeletee = new Set(selected)
+            const newarrr = newimg.filter((url) => {
+              return !picstodeletee.has(url.name)
+            })
+            const newarr = urls.filter((url) => {
+              return !picstodelete.has(url.name);
+
+            })
+
+            setUrls(newarr)
+            setNewimg(newarrr)
+            const { data, error } = await supabase.storage
+              .from("avatars")
+              .remove(selected);
+              setShow(false);
+          }}
+          className="h-[30px] flex justify-center cursor-pointer hover:bg-red-400 items-center w-[100px] rounded-lg z-50 fixed bg-red-500 bottom-2 right-2"
+        >
+          <h1 className="font-light text-black">Delete</h1>
+        </div>
+      )}
+
       <div className="bg-black min-h-screen bg-opacity-90">
         <div className="bg-black border-b rounded-b-lg border-gray-700 flex flex-col w-full">
           <h1 className="text-white text-3xl mb-3 font-thin text-center mt-2">
@@ -229,20 +294,24 @@ export default function Home() {
           {newimg.map((url, index) => {
             return (
               <div
-                className="relative w-[360px] m-1 border-gray-700  border-[1px] h-[300px] rounded-lg"
+                onClick={() => {
+                  imgtodel(url);
+                }}
                 key={index}
               >
-                <Image src={url} layout="fill" alt="pics" objectFit="contain" />
+                <Img show={show} url={url} />
               </div>
             );
           })}
           {urls.map((url, index) => {
             return (
               <div
-                className="relative w-[360px] m-1 border-gray-700  border-[1px] h-[300px] rounded-lg"
+                onClick={() => {
+                  imgtodel(url);
+                }}
                 key={index}
               >
-                <Image src={url} layout="fill" alt="pics" objectFit="contain" />
+                <Img show={show} url={url} />
               </div>
             );
           })}
