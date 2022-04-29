@@ -9,10 +9,10 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
   const [names, setNames] = useState([]);
-
+  const [newimg, setNewimg] = useState([]);
   const [urls, setUrls] = useState([]);
 
-
+  const [message1, setMessage1] = useState();
   const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
   const [loadingg, setLoadingg] = useState(false);
@@ -24,6 +24,7 @@ export default function Home() {
 
     setLoading(true);
     setLoadingg(true);
+    setNewimg([]);
     loader.unshift("getting image paths from DB...");
     const { data, error } = await supabase.storage.from("avatars").list("", {
       limit: 1000,
@@ -36,7 +37,6 @@ export default function Home() {
     loader.unshift("Downloading images...");
     let y = namdata[0].length - 1;
     for (let i = 1; i < namdata[0].length; i++) {
-      console.log("running");
       setMessage("Downloading image " + i + " of " + y + "...");
       const { data, error } = await supabase.storage
         .from("avatars")
@@ -49,7 +49,6 @@ export default function Home() {
       setUrls(urldata);
     }
 
-    setMessage("");
     loader.unshift("Downloading image " + y + " of " + y + "...");
     loader.unshift("Images loaded");
     setLoading(false);
@@ -62,8 +61,6 @@ export default function Home() {
     getdetails();
   }, []);
 
- 
-
   const imgtoupload = (event) => {
     let names = [];
     setUploaded(event.target.files);
@@ -72,14 +69,14 @@ export default function Home() {
       names.push(event.target.files[i].name);
     }
     setNames(names);
-    
   };
 
   const upload = async () => {
     loader.unshift("Uploading images to database...");
     setNames([]);
     setLoading(true);
-
+    let namdata = [];
+    let urldata = [];
     try {
       setUploading(true);
       for (let i = 0; i < uploaded.length; i++) {
@@ -92,7 +89,7 @@ export default function Home() {
           .from("avatars")
           .upload(filePath, file);
 
-        setMessage(
+        setMessage1(
           "Uploading image " + (i + 1) + " of " + uploaded.length + "..."
         );
       }
@@ -100,19 +97,45 @@ export default function Home() {
         "Uploading image " + uploaded.length + " of " + uploaded.length + "..."
       );
       loader.unshift("Uploaded " + uploaded.length + " images to database");
-      setMessage("");
+      setMessage1("");
+
+      loader.unshift("Downloading uploaded images from the Db...");
+      // test
+      let y = uploaded.length + 1;
+      const { data, error } = await supabase.storage.from("avatars").list("", {
+        limit: y,
+        sortBy: { column: "created_at", order: "desc" },
+      });
+      // console.log(data);
+      namdata.push(data);
+      // console.log(namdata);
+      loader.unshift("images downloaded successfully");
+      let x = namdata[0].length - 1;
+      for (let i = 1; i < namdata[0].length; i++) {
+        const { data, error } = await supabase.storage
+          .from("avatars")
+          .download(namdata[0][i].name);
+        setMessage1("loading image " + i + " of " + x + "...");
+
+        const url = URL.createObjectURL(data);
+
+        urldata.push(url);
+      }
+
+      // urls.push.apply(urls, urldata);
+      newimg.unshift.apply(newimg, urldata);
+      // test
     } catch (error) {
       alert(error.message);
     } finally {
       setUploading(false);
-      setLoading(false);
+      if (message === "") {
+        setLoading(false);
+        setLoader([]);
+      }
       setUploaded([]);
-      setLoader([]);
-      setMessage("");
-      if(loading !== true){
-        getdetails();
-      } 
-     
+      setMessage1("");
+      setLoadingg(false);
 
       // setLoading(false);
     }
@@ -182,6 +205,7 @@ export default function Home() {
 
           {loading && (
             <div className="flex flex-col-reverse text-white ml-5 mb-2 overflow-y-scroll h-[80px]">
+              <h1 className="text-white text-[12px] font-thin">{message1}</h1>
               <h1 className="text-white text-[12px] font-thin">{message}</h1>
               {loader.map((msg, index) => (
                 <div key={index}>
@@ -202,6 +226,16 @@ export default function Home() {
           )}
         </div>
         <div className="flex justify-center flex-wrap">
+          {newimg.map((url, index) => {
+            return (
+              <div
+                className="relative w-[360px] m-1 border-gray-700  border-[1px] h-[300px] rounded-lg"
+                key={index}
+              >
+                <Image src={url} layout="fill" alt="pics" objectFit="contain" />
+              </div>
+            );
+          })}
           {urls.map((url, index) => {
             return (
               <div
