@@ -70,6 +70,8 @@ export default function Home() {
   }, []);
 
   const imgtoupload = (event) => {
+    setShow(false)
+    setSelected([]);
     let names = [];
     setUploaded(event.target.files);
 
@@ -80,6 +82,8 @@ export default function Home() {
   };
 
   const upload = async () => {
+    setShow(false)
+    setSelected([]);
     loader.unshift("Uploading images to database...");
     setNames([]);
     setLoading(true);
@@ -215,8 +219,8 @@ export default function Home() {
           </h1>
           <div className="flex items-center">
             <label
-              className={`text-white flex items-center ${
-                uploading ? "bg-green-400 animate-pulse text-black" : ""
+              className={` flex items-center ${
+                uploading ? "bg-green-400 animate-pulse text-black" : "text-white"
               } border ml-5 cursor-pointer font-thin  hover:bg-gray-800 border-gray-700 text-center px-4 text-[20px] justify-center rounded-lg py-1`}
               htmlFor="single"
             >
