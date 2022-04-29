@@ -4,7 +4,7 @@ import styles from "../styles/Home.module.css";
 import { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
 import { AiFillFolderOpen } from "@react-icons/all-files/ai/AiFillFolderOpen";
-import Img from "../components/img";
+import Img from "../components/Img";
 
 export default function Home() {
   const [uploading, setUploading] = useState(false);
