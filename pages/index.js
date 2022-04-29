@@ -284,7 +284,7 @@ const change = () => {
 
           {loading && (
             <div className="flex flex-col-reverse text-white ml-5 mb-2 overflow-y-scroll h-[80px]">
-              <h1 className="text-white text-[12px] font-thin">{message1}</h1>
+              <h1 className="text-green-400 text-[12px] font-thin">{message1}</h1>
               <h1 className="text-white text-[12px] font-thin">{message}</h1>
               {loader.map((msg, index) => (
                 <div key={index}>
