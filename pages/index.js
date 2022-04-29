@@ -9,60 +9,60 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState([]);
   const [names, setNames] = useState([]);
-  const [allimgs, setAllimgs] = useState([]);
+
   const [urls, setUrls] = useState([]);
-  const [render, setRender] = useState(false);
-  const [rerender, setRerender] = useState(false);
+
+
   const [message, setMessage] = useState();
   const [loading, setLoading] = useState(false);
   const [loadingg, setLoadingg] = useState(false);
   const [loader, setLoader] = useState([]);
 
-  useEffect(() => {
+  const getdetails = async () => {
+    let urldata = [];
+    let namdata = [];
+
+    setLoading(true);
+    setLoadingg(true);
     loader.unshift("getting image paths from DB...");
-    const fetch = async () => {
-      setLoadingg(true);
-      setLoading(true)
+    const { data, error } = await supabase.storage.from("avatars").list("", {
+      limit: 1000,
+      sortBy: { column: "created_at", order: "desc" },
+    });
+    namdata.push(data);
+
+    loader.unshift("image paths retrieved");
+
+    loader.unshift("Downloading images...");
+    let y = namdata[0].length - 1;
+    for (let i = 1; i < namdata[0].length; i++) {
+      console.log("running");
+      setMessage("Downloading image " + i + " of " + y + "...");
       const { data, error } = await supabase.storage
         .from("avatars")
-        .list("", { sortBy: { column: "created_at", order: "desc" } });
+        .download(namdata[0][i].name);
 
-      setAllimgs(data);
+      const url = URL.createObjectURL(data);
 
-      loader.unshift("image paths retrieved");
-    };
+      urldata.push(url);
 
-    fetch();
-  }, [render]);
+      setUrls(urldata);
+    }
+
+    setMessage("");
+    loader.unshift("Downloading image " + y + " of " + y + "...");
+    loader.unshift("Images loaded");
+    setLoading(false);
+    setLoadingg(false);
+    setLoader([]);
+    setMessage("");
+  };
 
   useEffect(() => {
-    loader.unshift("Downloading images...");
-    const fetch = async () => {
-      let urldata = [];
-      let y = allimgs.length - 1;
-      for (let i = 1; i < allimgs.length; i++) {
-        setMessage("Loading image " + i + " of " + y + "...");
-        const { data, error } = await supabase.storage
-          .from("avatars")
-          .download(allimgs[i].name);
+    getdetails();
+  }, []);
 
-        const url = URL.createObjectURL(data);
-
-        urldata.push(url);
-        setUrls(urldata);
-      }
-      setRerender(!rerender);
-      setLoadingg(false);
-      setLoading(false);
-
-      setMessage("");
-      loader.unshift("Images loaded");
-      setLoader([])
-
-      // setLoader([])
-    };
-    fetch();
-  }, [allimgs]);
+ 
 
   const imgtoupload = (event) => {
     let names = [];
@@ -72,11 +72,14 @@ export default function Home() {
       names.push(event.target.files[i].name);
     }
     setNames(names);
+    
   };
 
   const upload = async () => {
     loader.unshift("Uploading images to database...");
+    setNames([]);
     setLoading(true);
+
     try {
       setUploading(true);
       for (let i = 0; i < uploaded.length; i++) {
@@ -102,11 +105,16 @@ export default function Home() {
       alert(error.message);
     } finally {
       setUploading(false);
+      setLoading(false);
       setUploaded([]);
-      setNames([]);
-      setRender(!render);
-      setLoading(false)
+      setLoader([]);
+      setMessage("");
+      if(loading !== true){
+        getdetails();
+      } 
+     
 
+      // setLoading(false);
     }
   };
 
@@ -124,7 +132,10 @@ export default function Home() {
               } border ml-5 cursor-pointer font-thin  hover:bg-gray-800 border-gray-700 text-center px-4 text-[20px] justify-center rounded-lg py-1`}
               htmlFor="single"
             >
-              {uploading ? "Uploading ..." : "Browse" } {!uploading && (<AiFillFolderOpen className="ml-2 text-green-400" />)}
+              {uploading ? "Uploading ..." : "Browse"}{" "}
+              {!uploading && (
+                <AiFillFolderOpen className="ml-2 text-green-400" />
+              )}
             </label>
             <input
               className="hidden"
@@ -149,7 +160,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-          {uploaded?.length > 0 && (
+          {names?.length > 0 && (
             <div className="flex justify-center mb-5">
               <button
                 onClick={() => {
@@ -170,16 +181,15 @@ export default function Home() {
           )}
 
           {loading && (
-
-          <div className="flex flex-col-reverse text-white ml-5 mb-2 overflow-y-scroll h-[80px]">
-            <h1 className="text-white text-[12px] font-thin">{message}</h1>
-            {loader.map((msg, index) => (
-              <div key={index}>
-                <h1 className="text-white text-[12px] font-thin ">{msg}</h1>
-              </div>
-            ))}
-          </div>
-          )} 
+            <div className="flex flex-col-reverse text-white ml-5 mb-2 overflow-y-scroll h-[80px]">
+              <h1 className="text-white text-[12px] font-thin">{message}</h1>
+              {loader.map((msg, index) => (
+                <div key={index}>
+                  <h1 className="text-white text-[12px] font-thin ">{msg}</h1>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="">
           <h1 className="text-white text-center font-thin text-[20px]">
