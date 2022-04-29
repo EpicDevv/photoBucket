@@ -1,8 +1,12 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-function Img({url, show}) {
+function Img({url, show, child }) {
   const [sel, setSel] = useState(false);
+
+useEffect(() => {
+    setSel(false)
+}, [child]);
 
   return (
     <div

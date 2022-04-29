@@ -20,8 +20,10 @@ export default function Home() {
   const [loader, setLoader] = useState([]);
   const [selected, setSelected] = useState([]);
   const [show, setShow] = useState(false);
+  const [child, setChild] = useState(false);
 
   const getdetails = async () => {
+    change()
     let urldata = [];
     let namdata = [];
 
@@ -82,6 +84,7 @@ export default function Home() {
   };
 
   const upload = async () => {
+    change()
     setShow(false)
     setSelected([]);
     loader.unshift("Uploading images to database...");
@@ -182,11 +185,17 @@ export default function Home() {
     }
   };
 
+
+const change = () => {
+  setChild(!child);
+}
+
   return (
     <div>
       {show === true && (
         <div
           onClick={async () => {
+            setShow(false);
             console.log(urls)
             console.log(selected)
             const picstodelete = new Set(selected);
@@ -204,7 +213,8 @@ export default function Home() {
             const { data, error } = await supabase.storage
               .from("avatars")
               .remove(selected);
-              setShow(false);
+              
+              change()
           }}
           className="h-[30px] flex justify-center cursor-pointer hover:bg-red-400 items-center w-[100px] rounded-lg z-50 fixed bg-red-500 bottom-2 right-2"
         >
@@ -303,7 +313,7 @@ export default function Home() {
                 }}
                 key={index}
               >
-                <Img show={show} url={url} />
+                <Img child={child} show={show} url={url} />
               </div>
             );
           })}
@@ -315,7 +325,7 @@ export default function Home() {
                 }}
                 key={index}
               >
-                <Img show={show} url={url} />
+                <Img child={child} show={show} url={url} />
               </div>
             );
           })}
