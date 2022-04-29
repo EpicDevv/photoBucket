@@ -21,7 +21,7 @@ export default function Home() {
   const [selected, setSelected] = useState([]);
   const [show, setShow] = useState(false);
   const [child, setChild] = useState(false);
-
+// 
   const getdetails = async () => {
     change()
     let urldata = [];
